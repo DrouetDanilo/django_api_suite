@@ -33,3 +33,37 @@ class DemoRestApi(APIView):
         data_list.append(data)
 
         return Response({'message': 'Dato guardado exitosamente.', 'data': data}, status=status.HTTP_201_CREATED)
+
+class DemoRestApiItem(APIView):
+    def put(self, request, item_id):
+        data = request.data
+
+        # Buscar el elemento por ID
+        for item in data_list:
+            if item['id'] == item_id:
+                if 'name' not in data or 'email' not in data:
+                    return Response({'error': 'Faltan campos requeridos para reemplazo.'}, status=status.HTTP_400_BAD_REQUEST)
+                item['name'] = data['name']
+                item['email'] = data['email']
+                item['is_active'] = data.get('is_active', True)
+                return Response({'message': 'Elemento reemplazado exitosamente.', 'data': item}, status=status.HTTP_200_OK)
+
+        return Response({'error': 'Elemento no encontrado.'}, status=status.HTTP_404_NOT_FOUND)
+
+    def patch(self, request, item_id):
+        data = request.data
+
+        for item in data_list:
+            if item['id'] == item_id:
+                item.update({k: v for k, v in data.items() if k in ['name', 'email', 'is_active']})
+                return Response({'message': 'Elemento actualizado parcialmente.', 'data': item}, status=status.HTTP_200_OK)
+
+        return Response({'error': 'Elemento no encontrado.'}, status=status.HTTP_404_NOT_FOUND)
+
+    def delete(self, request, item_id):
+        for item in data_list:
+            if item['id'] == item_id:
+                item['is_active'] = False  # Eliminación lógica
+                return Response({'message': 'Elemento eliminado lógicamente.'}, status=status.HTTP_200_OK)
+
+        return Response({'error': 'Elemento no encontrado.'}, status=status.HTTP_404_NOT_FOUND)
