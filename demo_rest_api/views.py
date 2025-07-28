@@ -20,3 +20,16 @@ class DemoRestApi(APIView):
         # Solo devuelve los usuarios activos
         active_items = [item for item in data_list if item.get('is_active', False)]
         return Response(active_items, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        data = request.data
+
+        # Validación mínima
+        if 'name' not in data or 'email' not in data:
+            return Response({'error': 'Faltan campos requeridos.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        data['id'] = str(uuid.uuid4())
+        data['is_active'] = True
+        data_list.append(data)
+
+        return Response({'message': 'Dato guardado exitosamente.', 'data': data}, status=status.HTTP_201_CREATED)
